@@ -1,10 +1,8 @@
+use std::env;
 use std::net::Ipv6Addr;
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use google_authenticator::GoogleAuthenticator;
-
-const IP_TEMPLATE: &str = "fd15:4ba5:5a2b:1008:20c:29ff:fexx:xxxx";
-const TOTP_SECRET: &str = "3OBVZP4AI74OIJO5YGV3UEXKXS6ISJ6H";
 
 fn build_ip(base: &str, code: u32) -> Result<String, &'static str> {
     let code_str = code.to_string();
@@ -13,7 +11,6 @@ fn build_ip(base: &str, code: u32) -> Result<String, &'static str> {
     }
 
     let code_chars = code_str.as_bytes();
-    println!("code chars: {:?} ({})", code_chars, code_str);
     if code_chars.len() != 6 {
         return Err("unexpected code len");
     }
@@ -43,15 +40,32 @@ fn build_ip(base: &str, code: u32) -> Result<String, &'static str> {
 }
 
 fn main() {
+    let ip_template = match env::var("TOSH_IP_TEMPLATE") {
+        Ok(val) => val,
+        Err(err) => panic!(
+            "failed to read environment variable TOSH_IP_TEMPLATE: {}",
+            err
+        ),
+    };
+
+    let totp_secret = match env::var("TOSH_TOTP_SECRET") {
+        Ok(val) => val,
+        Err(err) => panic!(
+            "failed to read environment variable TOSH_TOTP_SECRET: {}",
+            err
+        ),
+    };
+
     let auth = GoogleAuthenticator::new();
     let ts = SystemTime::now().duration_since(UNIX_EPOCH).unwrap();
     let code = auth
-        .get_code(TOTP_SECRET, ts.as_secs())
+        .get_code(&totp_secret, ts.as_secs())
         .unwrap()
         .parse::<u32>()
         .unwrap();
 
-    let raw_ip = build_ip(IP_TEMPLATE, code).unwrap();
+    let raw_ip = build_ip(&ip_template, code).unwrap();
     let ip: Ipv6Addr = raw_ip.parse().unwrap();
-    println!(">>> {} -> {}", code, ip);
+
+    println!("{}", ip);
 }
