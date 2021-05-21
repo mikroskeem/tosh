@@ -1,0 +1,81 @@
+#!/bin/sh
+
+# NOTE(mikroskeem): based on
+# https://github.com/jakwings/bash-totp
+
+# Better than nothing: http://www.in-ulm.de/~mascheck/various/set-e/
+set -euf +x
+
+# Before we get the token, redirect stdout to stderr.
+exec 3>&1 1>&2
+
+LC_ALL=C
+export LC_ALL
+
+echo() {
+  printf '%s\n' "$*"
+}
+ekho() {
+  printf '[totp] %s\n\n' "$*"
+}
+have() {
+  [ -x "$(command -v "$1" 2>/dev/null)" ]
+}
+
+gen_digest() (
+  set -e
+  key="$1" period="$2"
+  printf '%016X' "${period}" | xxd -r -p | {
+    # NUL is considered harmful. Avoid -hmac <binarykey>!
+    nul="$(sed -n 's/../&_/g;/00_/p;/_0$/p' <<EOT
+${key}
+EOT
+)"
+    # FIXME: can we not put the key on argv?
+    if [ '' != "${nul}" ]; then
+      openssl dgst -sha1 -mac hmac -macopt "hexkey:${key}"
+    else # especially for old versions from OSX/BSD!
+      openssl dgst -sha1 -hmac "$(echo "${key}" | xxd -r -p)"
+    fi
+  } | cut -d' ' -f2
+)
+
+# https://tools.ietf.org/html/rfc6238
+gen_token() (
+  set -e
+  interval="30"
+  now="$(date '+%s')"
+  secret="$(cat)"
+
+  err=''
+  if [ '' = "${secret}" ]; then
+    ekho 'The secret token was empty!'; err=1
+  fi
+  if [ '' != "${err}" ]; then
+    help
+  fi
+
+  # remove whitespace and leading zeros (and number sign)
+  interval="$(( ${interval#"${interval%%[1-9]*}"} + 0 ))"
+  now="$(( ${now%%[0-9]*}${now#"${now%%[1-9]*}"} + 0 ))"
+
+  period="$(( now / interval ))"
+
+  key="$(printf '%s' $secret | base32 -d | xxd -p | tr -cd 0-9A-Fa-f)"
+  [ '' != "${key}" ] || exit 2
+  # The digest is a 160-bit hexadecimal number string.
+  digest="$(gen_digest "${key}" "${period}" | tr -cd 0-9A-Fa-f)"
+  [ 40 -eq "${#digest}" ] || exit 3
+  # Read the last 4 bits and convert it into an unsigned integer.
+  offset="0x$(echo "${digest}" | cut -b 40)"
+  offset="$(( offset * 2 + 1))"
+  [ 33 -ge "${offset}" ] || exit 4
+  # Read a 32-bit positive integer and take at most six rightmost digits.
+  number="0x$(echo "${digest}" | cut -b "${offset}-$(( offset + 7 ))")"
+  token="$(( (number & 0x7FFFFFFF) % 1000000 ))"
+  # Pad the token number with leading zeros if needed.
+  printf '%06d\n' "${token}" >&3
+)
+
+gen_token ${1+"$@"}
+
