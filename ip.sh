@@ -24,6 +24,7 @@ for (( i=0; i<${#IP_TEMPLATE}; i++ )); do
 
 		if [ "${j}" -gt 6 ]; then
 			echo ">>> Template contains too many 'x'-es (max 6, got $j)"
+			exit 1
 		fi
 	else
 		ADDR="${ADDR}${chr}"
