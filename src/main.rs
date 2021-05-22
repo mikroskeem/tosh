@@ -1,5 +1,5 @@
 use std::env;
-use std::net::Ipv6Addr;
+use std::net::{Ipv6Addr, SocketAddrV6, ToSocketAddrs};
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use clap::{App, AppSettings, Arg, SubCommand};
@@ -109,4 +109,9 @@ fn generate_ip() {
 
 fn connect(host: &str, port: u16) {
     println!("connecting to {}:{}", host, port);
+
+    let available_addrs = format!("{}:{}", host, port).to_socket_addrs().unwrap();
+    for any_addr in available_addrs {
+        println!("{:?}", any_addr);
+    }
 }
