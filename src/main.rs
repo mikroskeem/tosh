@@ -5,7 +5,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 use google_authenticator::GoogleAuthenticator;
 
 fn build_ip(base: &str, code: u32) -> Result<String, &'static str> {
-    let code_str = code.to_string();
+    let code_str = format!("{:06}", code);
     if !code_str.is_ascii() {
         return Err("unexpected non-ascii characters while converting code to string");
     }
