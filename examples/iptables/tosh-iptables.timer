@@ -1,0 +1,8 @@
+[Unit]
+Description=Updates SSH allowed IP address using tosh-iptables service
+
+[Timer]
+OnUnitActiveSec=10s
+
+[Install]
+WantedBy=timers.target

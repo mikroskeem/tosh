@@ -19,6 +19,10 @@ $ tosh
 fd15:4ba5:5a2b:1008:20c:29ff:fe59:3001
 ```
 
+### Example setups
+
+- systemd timer & iptables setup - see [examples/iptables/](examples/iptables/)
+
 ## Roadmap
-- [ ] Describe example setup with `iptables` & systemd
+- [x] Describe example setup with `iptables` & systemd
 - [ ] `ssh` wrapper (`ProxyCommand` feature?)

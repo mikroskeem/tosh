@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+[ -n "${TOSH_IP_TEMPLATE}" ] || echo ">>> TOSH_IP_TEMPLATE not present"
+[ -n "${TOSH_TOTP_SECRET}" ] || echo ">>> TOSH_TOTP_SECRET not present"
+
+set_name=tosh-ips
+
+has_command () {
+	if [ -z "$(command -v "${1}" 2>/dev/null)" ]; then
+		echo ">>> '${1}' not in PATH"
+		exit 1
+	fi
+}
+
+create_ipset () {
+	local name="${1}"
+	local ip="${2}"
+
+	ipset -q create "${name}" hash:ip family inet6
+	ipset -q add "${name}" "${ip}"
+}
+
+has_command ipset
+has_command tosh
+
+# Create a new IP address
+GEN_IP="$(tosh)"
+
+if ! ipset -q list "${set_name}" &>/dev/null; then
+	# Just create a new set
+	create_ipset "${set_name}" "${GEN_IP}"
+
+	#echo ">>> Created a new set"
+elif ! ipset -q test "${set_name}" "${GEN_IP}"; then
+	# If generated ip does not exist in the set (TOTP rolls over every 30s),
+	# then create a new set to replace old set
+	tmpname="${set_name}-$(date +%s)"
+	create_ipset "${tmpname}" "${GEN_IP}"
+
+	# Replace
+	ipset -q swap "${tmpname}" "${set_name}"
+	ipset -q destroy "${tmpname}"
+
+	#echo ">>> IP updated"
+else
+	#echo ">>> No updates"
+	:
+fi

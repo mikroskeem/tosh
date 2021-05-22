@@ -1,0 +1,8 @@
+[Unit]
+Description=Updates SSH allowed IP address
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/tosh-iptables
+User=root
+RemainAfterExit=true
