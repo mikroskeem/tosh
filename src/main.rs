@@ -2,7 +2,7 @@ use std::env;
 use std::net::Ipv6Addr;
 use std::time::{SystemTime, UNIX_EPOCH};
 
-use google_authenticator::GoogleAuthenticator;
+use otpauth;
 
 fn build_ip(base: &str, code: u32) -> Result<String, &'static str> {
     let code_str = format!("{:06}", code);
@@ -56,13 +56,9 @@ fn main() {
         ),
     };
 
-    let auth = GoogleAuthenticator::new();
+    let auth = otpauth::TOTP::from_base32(totp_secret).unwrap();
     let ts = SystemTime::now().duration_since(UNIX_EPOCH).unwrap();
-    let code = auth
-        .get_code(&totp_secret, ts.as_secs())
-        .unwrap()
-        .parse::<u32>()
-        .unwrap();
+    let code = auth.generate(30, ts.as_secs());
 
     let raw_ip = build_ip(&ip_template, code).unwrap();
     let ip: Ipv6Addr = raw_ip.parse().unwrap();

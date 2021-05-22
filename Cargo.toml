@@ -5,4 +5,4 @@ authors = ["Mark Vainomaa <mikroskeem@mikroskeem.eu>"]
 edition = "2018"
 
 [dependencies]
-google-authenticator = "0.2.0"
+otpauth = "0.4.1"
