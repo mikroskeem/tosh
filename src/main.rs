@@ -2,6 +2,7 @@ use std::env;
 use std::net::Ipv6Addr;
 use std::time::{SystemTime, UNIX_EPOCH};
 
+use clap::{App, AppSettings, Arg, SubCommand};
 use otpauth;
 
 fn build_ip(base: &str, code: u32) -> Result<String, &'static str> {
@@ -40,6 +41,21 @@ fn build_ip(base: &str, code: u32) -> Result<String, &'static str> {
 }
 
 fn main() {
+    let app = App::new("tosh")
+        .version("0.0.0")
+        .author("Mark V. <mikroskeem@mikroskeem.eu>")
+        .about("Generates IPv6 address based on TOTP for ssh client/server")
+        .subcommand(SubCommand::with_name("generate").about("Generates an IPv6 address"))
+        .setting(AppSettings::SubcommandRequired);
+
+    let matches = app.get_matches();
+    match matches.subcommand_name() {
+        Some("generate") => generate_ip(),
+        _ => unreachable!(),
+    }
+}
+
+fn generate_ip() {
     let ip_template = match env::var("TOSH_IP_TEMPLATE") {
         Ok(val) => val,
         Err(err) => panic!(

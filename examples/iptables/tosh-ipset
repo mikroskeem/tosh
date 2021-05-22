@@ -25,7 +25,7 @@ has_command ipset
 has_command tosh
 
 # Create a new IP address
-GEN_IP="$(tosh)"
+GEN_IP="$(tosh generate)"
 
 if ! ipset -q list "${set_name}" &>/dev/null; then
 	# Just create a new set

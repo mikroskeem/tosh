@@ -5,4 +5,5 @@ authors = ["Mark Vainomaa <mikroskeem@mikroskeem.eu>"]
 edition = "2018"
 
 [dependencies]
+clap = "2.33.3"
 otpauth = "0.4.1"
