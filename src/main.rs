@@ -46,11 +46,36 @@ fn main() {
         .author("Mark V. <mikroskeem@mikroskeem.eu>")
         .about("Generates IPv6 address based on TOTP for ssh client/server")
         .subcommand(SubCommand::with_name("generate").about("Generates an IPv6 address"))
+        .subcommand(
+            SubCommand::with_name("connect")
+                .about("Connects to a target")
+                .arg(
+                    Arg::with_name("hostname")
+                        .short("h")
+                        .help("hostname to connect to")
+                        .takes_value(true)
+                        .required(true)
+                        .value_name("HOST"),
+                )
+                .arg(
+                    Arg::with_name("port")
+                        .short("p")
+                        .help("port to connect to")
+                        .takes_value(true)
+                        .required(true)
+                        .value_name("PORT")
+                        .default_value("22"),
+                ),
+        )
         .setting(AppSettings::SubcommandRequired);
 
     let matches = app.get_matches();
-    match matches.subcommand_name() {
-        Some("generate") => generate_ip(),
+    match matches.subcommand() {
+        ("generate", _) => generate_ip(),
+        ("connect", Some(m)) => connect(
+            m.value_of("hostname").unwrap(),
+            m.value_of("port").unwrap().parse::<u16>().unwrap(),
+        ),
         _ => unreachable!(),
     }
 }
@@ -80,4 +105,8 @@ fn generate_ip() {
     let ip: Ipv6Addr = raw_ip.parse().unwrap();
 
     println!("{}", ip);
+}
+
+fn connect(host: &str, port: u16) {
+    println!("connecting to {}:{}", host, port);
 }
