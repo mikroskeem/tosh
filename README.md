@@ -13,12 +13,12 @@ Assign yourself an IPv6 subnet, replace last 6 hex characters with `x`.
 Create a base32 TOTP secret, using e.g `gen-oath-safe mark totp`
 
 ```sh
-TOSH_IP_TEMPLATE=fd15:4ba5:5a2b:1008:20c:29ff:fexx:xxxx
-TOSH_TOTP_SECRET=3OBVZP4AI74OIJO5YGV3UEXKXS6ISJ6H
-
-tosh
+$ export TOSH_IP_TEMPLATE=fd15:4ba5:5a2b:1008:20c:29ff:fexx:xxxx
+$ export TOSH_TOTP_SECRET=3OBVZP4AI74OIJO5YGV3UEXKXS6ISJ6H
+$ tosh
+fd15:4ba5:5a2b:1008:20c:29ff:fe59:3001
 ```
 
 ## Roadmap
-- [ ] Describe example setup with `iptables`
+- [ ] Describe example setup with `iptables` & systemd
 - [ ] `ssh` wrapper (`ProxyCommand` feature?)
