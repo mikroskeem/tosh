@@ -6,3 +6,4 @@ Type=oneshot
 ExecStart=/usr/local/bin/tosh-iptables
 User=root
 RemainAfterExit=true
+EnvironmentFile=/etc/conf.d/tosh
