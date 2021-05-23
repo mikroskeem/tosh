@@ -74,7 +74,10 @@ fn main() {
         ("generate", _) => generate_ip(),
         ("connect", Some(m)) => connect(
             m.value_of("hostname").unwrap(),
-            m.value_of("port").unwrap().parse::<u16>().unwrap(),
+            m.value_of("port")
+                .unwrap()
+                .parse::<u16>()
+                .expect("unable to parse port"),
         ),
         _ => unreachable!(),
     }
