@@ -1,0 +1,9 @@
+[Unit]
+Description=Updates SSH allowed IP address
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/tosh-ssh-config-gen
+User=root
+RemainAfterExit=true
+EnvironmentFile=/etc/conf.d/tosh

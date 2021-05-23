@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+[ -n "${TOSH_IP_TEMPLATE}" ] || echo ">>> TOSH_IP_TEMPLATE not present"
+[ -n "${TOSH_TOTP_SECRET}" ] || echo ">>> TOSH_TOTP_SECRET not present"
+
+has_command () {
+	if [ -z "$(command -v "${1}" 2>/dev/null)" ]; then
+		echo ">>> '${1}' not in PATH"
+		exit 1
+	fi
+}
+
+has_command tosh
+
+# Create a new IP address
+GEN_IP="$(tosh generate)"
+
+# Write SSH config
+install -D -m 644 /dev/stdin /var/run/tosh/host-config <<EOF
+Hostname ${GEN_IP}
+EOF

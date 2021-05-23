@@ -1,0 +1,8 @@
+[Unit]
+Description=Updates SSH config using tosh
+
+[Timer]
+OnUnitActiveSec=10s
+
+[Install]
+WantedBy=timers.target
