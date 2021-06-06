@@ -21,7 +21,7 @@ To make things more fun, you may want to adjust your firewall rules to forward t
 
 Besides that, you NEED to ensure that your server and client times are in sync. You might want to look into [chrony](https://chrony.tuxfamily.org/).
 
-Few great alternatives to this:
+A few great alternatives to this:
 - [WireGuard](https://www.wireguard.com/) - easy to set up VPN software.
 - [knockd](https://zeroflux.org/projects/knock) - good old port knocking solution.
 - [sshguard](https://www.sshguard.net/) - bans brute forcers.
